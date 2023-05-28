@@ -39,5 +39,5 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Core
         EventSystem
         Screw
-        #DLLLoader
+        dl
         )

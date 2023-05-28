@@ -51,10 +51,10 @@ private:
     QByteArray currentInputRight;
     QByteArray currentInputTmp;
     QByteArrayList historyCommand;
-    bool dirReady = false;
+    bool escReady = false;
+    bool terminalControlReady = false;
     bool tmpIsSave = false;
     qsizetype currentHistoryCommandIndex = 0;
-
     QMutex addLogMutex;
     std::queue<LogInfo> log;
 };

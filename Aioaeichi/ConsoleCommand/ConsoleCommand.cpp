@@ -38,7 +38,7 @@ void ConsoleCommand::run() {
         while ((tmp != '\r') && (tmp != '\n') && isRun) {
             if (kbhit()) {
                 tmp = getch();
-                if (tmp == '\b') {
+                if (tmp == 127) {
                     if (tmpIsSave) {
                         currentHistoryCommandIndex = historyCommand.size() - 1;
                         tmpIsSave = false;
@@ -49,11 +49,12 @@ void ConsoleCommand::run() {
                         currentInputLeft = tmp_qba;
                         std::cout << "\b \b";
                         std::cout << currentInputRight.data() << " \b";
-                        for (qsizetype i = 0; i < currentInputRight.size(); i++)std::cout << '\b';
+                        for (qsizetype i = 0; i < currentInputRight.size(); i++)
+                            std::cout << '\b';
                     }
-                } else if (dirReady) {
-                    dirReady = false;
-                    if (tmp == 72) {
+                } else if (terminalControlReady) {
+                    terminalControlReady = false;
+                    if (tmp == 'A') { // 上
                         currentInputRight = "";
                         if (!tmpIsSave) {
                             tmpIsSave = true;
@@ -70,7 +71,8 @@ void ConsoleCommand::run() {
                             currentInputLeft = currentInput;
                             std::cout << currentInput.data();
                         }
-                    } else if (tmp == 80) {
+                    }
+                    else if (tmp == 'B') { // 下
                         currentInputRight = "";
                         if (!tmpIsSave) {
                             tmpIsSave = true;
@@ -94,7 +96,7 @@ void ConsoleCommand::run() {
                             currentInputLeft = currentInput;
                             std::cout << currentInput.data();
                         }
-                    } else if (tmp == 75) {
+                    } else if (tmp == 'D') { // 左
                         if (currentInputLeft.size() != 0) {
                             char cilb = currentInputLeft[currentInputLeft.size() - 1];
                             QByteArray tmp_qba;
@@ -103,7 +105,7 @@ void ConsoleCommand::run() {
                             currentInputRight = cilb + currentInputRight;
                             std::cout << '\b';
                         }
-                    } else if (tmp == 77) {
+                    } else if (tmp == 'C') { // 右
                         if (currentInputRight.size() != 0) {
                             char cirb = currentInputRight[0];
                             QByteArray tmp_qba;
@@ -114,21 +116,27 @@ void ConsoleCommand::run() {
                             std::cout << cirb;
                         }
                     }
-                } else if (
-                        ((tmp != '\r') && (tmp != '\n')) &&
-                        (' ' <= tmp && tmp <= '~')
-                        ) {
+                } else if (escReady) {
+                    escReady = false;
+                    if (tmp == 91)
+                        terminalControlReady = true;
+                    else if (((tmp != '\r') && (tmp != '\n')) && (' ' <= tmp && tmp <= '~'))
+                        goto A;
+                } else if (((tmp != '\r') && (tmp != '\n')) && (' ' <= tmp && tmp <= '~')) {
+A:
                     if (tmpIsSave) {
                         currentHistoryCommandIndex = historyCommand.size() - 1;
                         tmpIsSave = false;
                     }
-                    currentInputLeft.push_back((char) tmp);
-                    std::cout << (char) tmp;
+                    currentInputLeft.push_back((char)tmp);
+                    std::cout << (char)tmp;
                     std::cout << currentInputRight.data();
-                    for (qsizetype i = 0; i < currentInputRight.size(); i++)std::cout << "\b";
+                    for (qsizetype i = 0; i < currentInputRight.size(); i++)
+                        std::cout << "\b";
                     std::cout << std::flush;
-                } else if (tmp == 224)
-                    dirReady = true;
+                }
+                else if (tmp == 27)
+                    escReady = true;
                 if (tmp == '\r' || tmp == '\n')
                     std::cout << std::endl;
                 currentInput = currentInputLeft + currentInputRight;
@@ -152,34 +160,36 @@ void ConsoleCommand::run() {
                         LogInfo li = log.front();
                         log.pop();
                         addLogMutex.unlock();
-                        std::string rank;
-                        switch (li.rank) {
-                            case LogInfo::Info:
-                                rank = "[I]";
-                                break;
-                            case LogInfo::Warning:
-                                rank = "[W]";
-                                break;
-                            case LogInfo::Error:
-                                rank = "[E]";
-                                break;
-                            default:
-                                break;
+                        if (li.eInfo) {
+                            std::string rank;
+                            switch (li.rank) {
+                                case LogInfo::Info:
+                                    rank = "[I]";
+                                    break;
+                                case LogInfo::Warning:
+                                    rank = "[W]";
+                                    break;
+                                case LogInfo::Error:
+                                    rank = "[E]";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            std::string file;
+                            {
+                                auto i = li.file.end();
+                                for (; i != li.file.begin(); i--)
+                                    if ((*i) == '/' || (*i) == '\\')break;
+                                for (i++; i != li.file.end(); i++)
+                                    file.push_back(*i);
+                            }
+                            std::cout << li.time
+                                      << rank
+                                      << '[' << (void*)li.thread << ']'
+                                      << '[' << file << ':'
+                                      << li.line << ']' << ' ';
                         }
-                        std::string file;
-                        {
-                            auto i = li.file.end();
-                            for (; i != li.file.begin(); i--)
-                                if ((*i) == '/' || (*i) == '\\')break;
-                            for (i++; i != li.file.end(); i++)
-                                file.push_back(*i);
-                        }
-                        std::cout << li.time
-                                  << rank
-                                  << '[' << (void*)li.thread << ']'
-                                  << '[' << file << ':'
-                                  << li.line << ']' << ' '
-                                  << li.data << std::endl;
+                        std::cout << li.data << std::endl;
                         addLogMutex.lock();
                         empty = log.empty();
                         addLogMutex.unlock();
