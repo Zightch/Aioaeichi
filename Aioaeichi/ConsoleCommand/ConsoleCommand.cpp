@@ -177,7 +177,7 @@ void ConsoleCommand::run() {
                         std::cout << li.time
                                   << rank
                                   << '[' << (void*)li.thread << ']'
-                                  << '[' << li.file << ':'
+                                  << '[' << file << ':'
                                   << li.line << ']' << ' '
                                   << li.data << std::endl;
                         addLogMutex.lock();
