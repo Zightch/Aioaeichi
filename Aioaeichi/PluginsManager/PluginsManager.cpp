@@ -76,7 +76,7 @@ void PluginsManager::loadPlugins() {
             nameFilters << wildcardCharacters;
             return dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
         };
-        QStringList files = traverseDocument("./plugins/", "*.dll");
+        QStringList files = traverseDocument("./plugins/", "*.so");
         for (const QString &file: files) {
             QByteArray filename = file.toLocal8Bit();
             plugins.emplace_back();
@@ -84,7 +84,7 @@ void PluginsManager::loadPlugins() {
                 QByteArray libs_path = "plugins-libs/" + filename + "/";
                 if (!generalDir.exists(libs_path))
                     generalDir.mkpath(libs_path);
-                QStringList libs_files = traverseDocument(libs_path, "*.dll");
+                QStringList libs_files = traverseDocument(libs_path, "*.so");
                 for (const QString &lib: libs_files) {
                     QByteArray libname = lib.toLocal8Bit();
                     void *dllHandle = loadDLL((libs_path + libname).data());
