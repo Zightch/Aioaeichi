@@ -4,7 +4,7 @@ project(${projectName} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.1/gcc_64/lib/cmake")
+set(CMAKE_PREFIX_PATH "/home/Qt/6.5.1/gcc_64")
 # add_compile_options("$<$<C_COMPILER_ID:GNU>:-fexec-charset=GBK>")
 # add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-fexec-charset=GBK>")
 # add_compile_options("$<$<C_COMPILER_ID:GNU>:-finput-charset=utf-8>")
