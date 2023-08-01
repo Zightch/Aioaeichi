@@ -18,7 +18,7 @@ PluginsManager::PluginsManager(QObject *parent) : QObject(parent) {
 
 PluginsManager::~PluginsManager() = default;
 
-void PluginsManager::cmdProc(const QByteArray &cmd, const QByteArrayList &args, int cs, bool &isProcess) {
+void PluginsManager::cmdProc(const QByteArray &cmd, const QByteArrayList &, int cs, bool &isProcess) {
     if (cs == 1) {
         if (cmd == "loadPlugins") {
             isProcess = true;
@@ -50,9 +50,9 @@ void PluginsManager::exit() {
                 LOG(Info, ("无法正常卸载" + plugins[i].name).data());
         }
         EventSystem::clearListener();
-        for(qsizetype i = 0; i < plugins.size(); i++) {
-            unloadDLL(plugins[i].handle);
-            for (auto lib: plugins[i].libs)
+        for(auto & plugin : plugins) {
+            unloadDLL(plugin.handle);
+            for (auto lib: plugin.libs)
                 unloadDLL(lib);
         }
         LOG(Info, "所有插件卸载完成");
@@ -76,7 +76,11 @@ void PluginsManager::loadPlugins() {
             nameFilters << wildcardCharacters;
             return dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
         };
+#ifdef _WIN32
+        QStringList files = traverseDocument("./plugins/", "*.dll");
+#elif __linux__
         QStringList files = traverseDocument("./plugins/", "*.so");
+#endif
         for (const QString &file: files) {
             QByteArray filename = file.toLocal8Bit();
             plugins.emplace_back();
@@ -84,7 +88,11 @@ void PluginsManager::loadPlugins() {
                 QByteArray libs_path = "plugins-libs/" + filename + "/";
                 if (!generalDir.exists(libs_path))
                     generalDir.mkpath(libs_path);
+#ifdef _WIN32
+                QStringList libs_files = traverseDocument(libs_path, "*.dll");
+#elif __linux__
                 QStringList libs_files = traverseDocument(libs_path, "*.so");
+#endif
                 for (const QString &lib: libs_files) {
                     QByteArray libname = lib.toLocal8Bit();
                     void *dllHandle = loadDLL((libs_path + libname).data());

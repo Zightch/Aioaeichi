@@ -2,7 +2,7 @@
 #include "Screw/Logger.h"
 #include "EventSystem/eventSystem.h"
 CommandProcessing::CommandProcessing(QObject *parent) : QObject(parent) {
-    EventSystem::Event("CommandProcessing.commandEvent");
+    EventSystem::Event event("CommandProcessing.commandEvent");
     connect(&timer, &QTimer::timeout, this, &CommandProcessing::cmdProc);
     timer.start(100);
 }

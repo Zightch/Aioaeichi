@@ -4,11 +4,17 @@ project(${projectName} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_PREFIX_PATH "/home/Qt/6.5.1/gcc_64")
-# add_compile_options("$<$<C_COMPILER_ID:GNU>:-fexec-charset=GBK>")
-# add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-fexec-charset=GBK>")
-# add_compile_options("$<$<C_COMPILER_ID:GNU>:-finput-charset=utf-8>")
-# add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-finput-charset=utf-8>")
+if (WIN32)
+        set(CMAKE_PREFIX_PATH "D:\\Qt\\6.5.1\\mingw_64\\lib\\cmake")
+        set(libs EventSystem Screw)
+        add_compile_options("$<$<C_COMPILER_ID:GNU>:-fexec-charset=GBK>")
+        add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-fexec-charset=GBK>")
+        add_compile_options("$<$<C_COMPILER_ID:GNU>:-finput-charset=utf-8>")
+        add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-finput-charset=utf-8>")
+elseif(unix)
+        set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.1/gcc_64/lib/cmake")
+        set(libs EventSystem Screw dl)
+endif ()
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -37,7 +43,5 @@ add_executable(
 target_link_libraries(
         ${projectName}
         Qt${QT_VERSION_MAJOR}::Core
-        EventSystem
-        Screw
-        dl
+        ${libs}
         )

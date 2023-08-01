@@ -19,7 +19,7 @@ ConsoleCommand::ConsoleCommand(QObject *parent) : QThread(parent) {
         exit();
     });
     isRun = true;
-    EventSystem::Event("ConsoleCommand.addCmdEvent");
+    EventSystem::Event addCmdEvent("ConsoleCommand.addCmdEvent");
     auto addCmd = [&](EventSystem::Event *e) {
         auto ce = (*((CommandEvent *) e));
         if (cp != nullptr)
@@ -27,7 +27,7 @@ ConsoleCommand::ConsoleCommand(QObject *parent) : QThread(parent) {
         e->ignore();
     };
     EventSystem::Listener addCmd_l("ConsoleCommand._cmdProc", addCmd);
-    addCmd_l.listenEvent("ConsoleCommand.addCmdEvent");
+    addCmd_l.listenEvent(addCmdEvent);
 }
 
 void ConsoleCommand::run() {
@@ -38,7 +38,11 @@ void ConsoleCommand::run() {
         while ((tmp != '\r') && (tmp != '\n') && isRun) {
             if (kbhit()) {
                 tmp = getch();
+#ifdef _WIN32
+                if (tmp == '\b') {
+#elif __linux__
                 if (tmp == 127) {
+#endif
                     if (tmpIsSave) {
                         currentHistoryCommandIndex = historyCommand.size() - 1;
                         tmpIsSave = false;
@@ -52,6 +56,73 @@ void ConsoleCommand::run() {
                         for (qsizetype i = 0; i < currentInputRight.size(); i++)
                             std::cout << '\b';
                     }
+#ifdef  _WIN32
+                } else if (dirReady) {
+                    dirReady = false;
+                    if (tmp == 72) {
+                        currentInputRight = "";
+                        if (!tmpIsSave) {
+                            tmpIsSave = true;
+                            currentInputTmp = currentInput;
+                        }
+                        if ((historyCommand.size() > 1) && currentHistoryCommandIndex > 0) {
+                            for (unsigned long long i = 0; i < currentInputLeft.size(); i++)
+                                std::cout << "\b";
+                            for (unsigned long long i = 0; i < currentInput.size(); i++)
+                                std::cout << " ";
+                            for (unsigned long long i = 0; i < currentInput.size(); i++)
+                                std::cout << "\b";
+                            currentInput = historyCommand[--currentHistoryCommandIndex];
+                            currentInputLeft = currentInput;
+                            std::cout << currentInput.data();
+                        }
+                    } else if (tmp == 80) {
+                        currentInputRight = "";
+                        if (!tmpIsSave) {
+                            tmpIsSave = true;
+                            currentInputTmp = currentInput;
+                        }
+                        for (unsigned long long i = 0; i < currentInputLeft.size(); i++)
+                            std::cout << "\b";
+                        for (unsigned long long i = 0; i < currentInput.size(); i++)
+                            std::cout << " ";
+                        for (unsigned long long i = 0; i < currentInput.size(); i++)
+                            std::cout << "\b";
+                        if (currentHistoryCommandIndex < historyCommand.size() - 2) {
+                            currentInput = historyCommand[++currentHistoryCommandIndex];
+                            currentInputLeft = currentInput;
+                            std::cout << currentInput.data();
+                        } else {
+                            if (currentHistoryCommandIndex != historyCommand.size() - 1)
+                                currentHistoryCommandIndex++;
+                            tmpIsSave = false;
+                            currentInput = currentInputTmp;
+                            currentInputLeft = currentInput;
+                            std::cout << currentInput.data();
+                        }
+                    } else if (tmp == 75) {
+                        if (currentInputLeft.size() != 0) {
+                            char cilb = currentInputLeft[currentInputLeft.size() - 1];
+                            QByteArray tmp_qba;
+                            tmp_qba.append(currentInputLeft, currentInputLeft.size() - 1);
+                            currentInputLeft = tmp_qba;
+                            currentInputRight = cilb + currentInputRight;
+                            std::cout << '\b';
+                        }
+                    } else if (tmp == 77) {
+                        if (currentInputRight.size() != 0) {
+                            char cirb = currentInputRight[0];
+                            QByteArray tmp_qba;
+                            for (qsizetype i = 1; i < currentInputRight.size(); i++)
+                                tmp_qba += currentInputRight[i];
+                            currentInputRight = tmp_qba;
+                            currentInputLeft += cirb;
+                            std::cout << cirb;
+                        }
+                    }
+                } else if (tmp == 224) {
+                    dirReady = true;
+#elif __linux__
                 } else if (terminalControlReady) {
                     terminalControlReady = false;
                     if (tmp == 'A') { // 上
@@ -122,6 +193,9 @@ void ConsoleCommand::run() {
                         terminalControlReady = true;
                     else if (((tmp != '\r') && (tmp != '\n')) && (' ' <= tmp && tmp <= '~'))
                         goto A;
+                } else if (tmp == 27) {
+                    escReady = true;
+#endif
                 } else if (((tmp != '\r') && (tmp != '\n')) && (' ' <= tmp && tmp <= '~')) {
 A:
                     if (tmpIsSave) {
@@ -135,8 +209,6 @@ A:
                         std::cout << "\b";
                     std::cout << std::flush;
                 }
-                else if (tmp == 27)
-                    escReady = true;
                 if (tmp == '\r' || tmp == '\n')
                     std::cout << std::endl;
                 currentInput = currentInputLeft + currentInputRight;

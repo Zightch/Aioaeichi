@@ -2,12 +2,15 @@
 #include<QThread>
 #include<QMutex>
 #include"../CommandProcessing/CommandProcessing.h"
+
 class ConsoleCommand: public QThread {
 public:
-    Q_OBJECT
+Q_OBJECT
+
 public:
 
     static ConsoleCommand *getObjetc(QObject * = nullptr);
+
     static void deleteThis();
 
 private:
@@ -31,7 +34,7 @@ private:
 
     void run() override;
 
-    void exit();
+    static void exit();
 
     static void addLog(
             bool,//是否有时间等信息
@@ -51,8 +54,12 @@ private:
     QByteArray currentInputRight;
     QByteArray currentInputTmp;
     QByteArrayList historyCommand;
+#ifdef _WIN32
+    bool dirReady = false;
+#elif __linux__
     bool escReady = false;
     bool terminalControlReady = false;
+#endif
     bool tmpIsSave = false;
     qsizetype currentHistoryCommandIndex = 0;
     QMutex addLogMutex;

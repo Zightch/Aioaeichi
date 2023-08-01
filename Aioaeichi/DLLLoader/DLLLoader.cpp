@@ -9,7 +9,12 @@
 [[maybe_unused]]
 void *loadDLL(const char *file) {
 #ifdef _WIN32
-    return LoadLibrary(file);
+    auto bufSize = MultiByteToWideChar(CP_ACP, 0, file, -1, nullptr, 0);
+    auto wp = new wchar_t[bufSize];
+    MultiByteToWideChar(CP_ACP, 0, file, -1, wp, bufSize);
+    auto ptr = LoadLibrary(wp);
+    delete[]wp;
+    return ptr;
 #elif __linux__
     return dlopen(file, RTLD_LAZY);
 #endif
