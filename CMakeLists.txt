@@ -28,8 +28,8 @@ include_directories(./${projectName})
 
 link_directories(libs)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
 add_executable(
         ${projectName}
@@ -43,5 +43,6 @@ add_executable(
 target_link_libraries(
         ${projectName}
         Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Gui
         ${libs}
         )
