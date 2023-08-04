@@ -34,10 +34,10 @@ void ConsoleCommand::run() {
     std::cout << '>' << std::flush;
     historyCommand.emplace_back();
     while (isRun) {
-        int tmp = 0;
+        char tmp = 0;
         while ((tmp != '\r') && (tmp != '\n') && isRun) {
             if (kbhit()) {
-                tmp = getch();
+                tmp = (char)getch();
 #ifdef _WIN32
                 if (tmp == '\b') {
 #elif __linux__
@@ -120,7 +120,7 @@ void ConsoleCommand::run() {
                             std::cout << cirb;
                         }
                     }
-                } else if (tmp == 224) {
+                } else if (tmp == (char)224) {
                     dirReady = true;
 #elif __linux__
                 } else if (terminalControlReady) {
@@ -197,7 +197,9 @@ void ConsoleCommand::run() {
                     escReady = true;
 #endif
                 } else if (((tmp != '\r') && (tmp != '\n')) && (' ' <= tmp && tmp <= '~')) {
+#ifdef __linux__
 A:
+#endif
                     if (tmpIsSave) {
                         currentHistoryCommandIndex = historyCommand.size() - 1;
                         tmpIsSave = false;
