@@ -1,17 +1,22 @@
 #include<QCoreApplication>
-#include"Aioaeichi/ConsoleCommand/ConsoleCommand.h"
-#include"Aioaeichi/CommandProcessing/CommandProcessing.h"
+#include"CmdIss/CmdIss.h"
+#include"Shell/Shell.h"
 #include"Aioaeichi/PluginsManager/PluginsManager.h"
 #include<iostream>
+#include <QThread>
+
 int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
-    CommandProcessing cp;
-    PluginsManager pm(&cp);
-    auto cc = ConsoleCommand::getObjetc(&cp);
-    QObject::connect(&cp, &CommandProcessing::exit, &a, &QCoreApplication::quit);
-    cc->start();
-    int exec = QCoreApplication::exec();
-    ConsoleCommand::deleteThis();
+    QThread thread(&a);
+    Shell::getObject(&a);
+    CmdIss::getObject(&thread);
+    PluginsManager::getObject(&thread);
+    QObject::connect(CmdIss::getObject(), &CmdIss::appExit, [&]() { thread.exit(); QCoreApplication::exit(); });
+    thread.start();
+    int ret = QCoreApplication::exec();
+    PluginsManager::deleteObject();
+    CmdIss::deleteObject();
+    Shell::deleteObject();
     std::cout << std::endl;
-    return exec;
+    return ret;
 }

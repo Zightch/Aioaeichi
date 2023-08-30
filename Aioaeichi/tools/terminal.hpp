@@ -2,10 +2,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-char getch() {
+int getch() {
     termios tm{}, tm_old{};
-    int fd = 0;
-    char ch;
+    int fd = 0, ch;
     if (tcgetattr(fd, &tm) < 0) {//保存现在的终端设置
         return -1;
     }

@@ -1,22 +1,24 @@
 #pragma once
-#include "CommandProcessing/CommandProcessing.h"
+#include <QObject>
 
 class PluginsManager : public QObject {
 Q_OBJECT
 public:
 
-    explicit PluginsManager(QObject * = nullptr);
-    ~PluginsManager() override;
+    static PluginsManager *getObject(QThread * = nullptr);
+
+    static void deleteObject();
 
 private:
+    explicit PluginsManager(QThread * = nullptr);
+
+    ~PluginsManager() override;
 
     void loadPlugins();
 
     void initPlugins();
 
     void startPlugins();
-
-    void cmdProc(const QByteArray &, const QByteArrayList &, int, bool &);
 
     void exit();
 
@@ -28,5 +30,5 @@ private:
     };
 
     QList<Plugin> plugins;
-    CommandProcessing *cp = nullptr;
+    static PluginsManager *once;
 };

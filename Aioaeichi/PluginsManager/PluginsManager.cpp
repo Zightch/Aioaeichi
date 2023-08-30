@@ -1,40 +1,23 @@
 #include "PluginsManager.h"
-#include "Screw/Logger.h"
+#include "Logger/Logger.h"
 #include "DLLLoader/DLLLoader.h"
-#include "EventSystem/eventSystem.h"
+#include "CmdIss/CmdIss.h"
 #include <QDir>
+#include <QThread>
 
-PluginsManager::PluginsManager(QObject *parent) : QObject(parent) {
-    if(parent != nullptr) {
-        cp = (CommandProcessing *)  parent;
-        connect(cp, &CommandProcessing::command, this, &PluginsManager::cmdProc);
-        connect(cp, &CommandProcessing::exit, this, &PluginsManager::exit);
-        cp->addCmd("loadPlugins", 1);
-        cp->addCmd("initPlugins", 1);
-        cp->addCmd("startPlugins", 1);
-        cp->addCmd("donePlugins", 1);
-    }
+PluginsManager *PluginsManager::once = nullptr;
+
+PluginsManager::PluginsManager(QThread *thread) {
+    moveToThread(thread);
+    loadPlugins();
+    initPlugins();
+    startPlugins();
+    LOG(Info, ("已成功加载" + QString::number(plugins.size()).toLocal8Bit() + "个插件").data());
+    CmdIss::getObject()->registExitActiv(this);
+    connect(CmdIss::getObject(),&CmdIss::startExit,this,&PluginsManager::exit);
 }
 
 PluginsManager::~PluginsManager() = default;
-
-void PluginsManager::cmdProc(const QByteArray &cmd, const QByteArrayList &, int cs, bool &isProcess) {
-    if (cs == 1) {
-        if (cmd == "loadPlugins") {
-            isProcess = true;
-            loadPlugins();
-        } else if (cmd == "initPlugins") {
-            isProcess = true;
-            initPlugins();
-        } else if (cmd == "startPlugins") {
-            isProcess = true;
-            startPlugins();
-        } else if (cmd == "donePlugins") {
-            isProcess = true;
-            LOG(Info, ("已成功加载" + QString::number(plugins.size()).toLocal8Bit() + "个插件").data());
-        }
-    }
-}
 
 void PluginsManager::exit() {
     if (!plugins.empty()) {
@@ -49,7 +32,6 @@ void PluginsManager::exit() {
             } else
                 LOG(Info, ("无法正常卸载" + plugins[i].name).data());
         }
-        EventSystem::clearListener();
         for(auto & plugin : plugins) {
             unloadDLL(plugin.handle);
             for (auto lib: plugin.libs)
@@ -57,6 +39,7 @@ void PluginsManager::exit() {
         }
         LOG(Info, "所有插件卸载完成");
     }
+    CmdIss::getObject()->canExit(this);
 }
 
 void PluginsManager::loadPlugins() {
@@ -157,4 +140,15 @@ void PluginsManager::startPlugins() {
             }
         }
     }
+}
+
+void PluginsManager::deleteObject() {
+    delete once;
+    once = nullptr;
+}
+
+PluginsManager *PluginsManager::getObject(QThread *thread) {
+    if (once == nullptr && thread != nullptr)
+        once = new PluginsManager(thread);
+    return once;
 }
