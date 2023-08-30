@@ -1,7 +1,5 @@
 #pragma once
-#include <QObject>
 #include <functional>
-#include <utility>
 #include <QTimer>
 #include <QMutexLocker>
 #include <QMap>

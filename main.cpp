@@ -3,7 +3,7 @@
 #include"Shell/Shell.h"
 #include"Aioaeichi/PluginsManager/PluginsManager.h"
 #include<iostream>
-#include <QThread>
+#include<QThread>
 
 int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
