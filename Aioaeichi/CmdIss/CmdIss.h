@@ -59,6 +59,8 @@ signals:
 private:
 signals:
 
+    void timerStart();
+
     void startExitInAdvance();
 
     void appExitInAdvance();
@@ -74,6 +76,8 @@ private:
         std::vector<QByteArray> args;
     };
 
+    void timerStart_();
+
     void cmdProc();
 
     void startExit_();
@@ -86,7 +90,7 @@ private:
     bool isIss = false;
     bool isReadyExit = false;
     bool isCanExit = false;
-    QTimer timer{};
+    QTimer *timer = nullptr;
     QList<Cmd> cmdBuf;
     QMutex mutex;
     QMap<QObject *, bool> exitActic;

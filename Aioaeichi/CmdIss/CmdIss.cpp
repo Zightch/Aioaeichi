@@ -32,10 +32,10 @@ void CmdIss::addCmd(const QByteArray &src) {
 
 CmdIss::CmdIss(QThread *thread) {
     moveToThread(thread);
-    timer.start(100);
-    connect(&timer, &QTimer::timeout, this, &CmdIss::cmdProc);
-    connect(this,&CmdIss::startExitInAdvance,this,&CmdIss::startExit_,Qt::QueuedConnection);
-    connect(this,&CmdIss::appExitInAdvance,this,&CmdIss::appExit_,Qt::QueuedConnection);
+    connect(this, &CmdIss::startExitInAdvance, this, &CmdIss::startExit_, Qt::QueuedConnection);
+    connect(this, &CmdIss::appExitInAdvance, this, &CmdIss::appExit_, Qt::QueuedConnection);
+    connect(this, &CmdIss::timerStart, this, &CmdIss::timerStart_, Qt::QueuedConnection);
+    emit timerStart();
 }
 
 void CmdIss::deleteObject() {
@@ -83,10 +83,8 @@ void CmdIss::cmdProc() {
         }
     } else {
         mutex.lock();
-        if (isCanExit) {
-            timer.stop();
+        if (isCanExit)
             emit appExitInAdvance();
-        }
         mutex.unlock();
     }
 }
@@ -130,6 +128,8 @@ void CmdIss::startExit_() {
 }
 
 void CmdIss::appExit_() {
+    delete timer;
+    timer = nullptr;
     emit appExit();
 }
 
@@ -141,4 +141,10 @@ void CmdIss::registExitActiv(QObject *obj) {
 void CmdIss::rmExitActiv(QObject *obj) {
     if (exitActic.contains(obj))
         exitActic.remove(obj);
+}
+
+void CmdIss::timerStart_() {
+    timer = new QTimer(this);
+    timer->start(100);
+    connect(timer, &QTimer::timeout, this, &CmdIss::cmdProc);
 }

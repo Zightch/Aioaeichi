@@ -191,14 +191,14 @@ void Shell::loop_() {
                     } else if (tmp == 'D') { // 左
                         if (currentInputLeft.size() != 0) {
                             char cilb = currentInputLeft[currentInputLeft.size() - 1];
-                            currentInputLeft.pop_back();
+                            currentInputLeft.removeLast();
                             currentInputRight = cilb + currentInputRight;
                             std::cout << '\b';
                         }
                     } else if (tmp == 'C') { // 右
                         if (currentInputRight.size() != 0) {
                             char cirb = currentInputRight[0];
-                            currentInputRight.erase(currentInputRight.begin());
+                            currentInputRight.removeFirst();
                             currentInputLeft += cirb;
                             std::cout << cirb;
                         }
@@ -301,7 +301,7 @@ void Shell::loop_() {
                     };
                     std::cout << utf8ToGBK(li.data).data() << std::endl;
 #elif __linux__
-                    std::cout << li.data << std::endl;
+                    std::cout << li.data.data() << std::endl;
 #endif
                     addLogMutex.lock();
                     empty = log.empty();
