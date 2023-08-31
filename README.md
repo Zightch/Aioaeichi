@@ -149,4 +149,4 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
 9.  在`>`之后输入`exit`即可退出程序
 ## 最后
 都看到这里了, 不妨点个star支持一下  
-想要深入了解Aioaeichi的使用可以翻阅[这篇文档]()
+想要深入了解Aioaeichi的使用可以翻阅[这篇文档](advanced.md)
