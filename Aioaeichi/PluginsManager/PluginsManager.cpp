@@ -9,17 +9,17 @@ PluginsManager *PluginsManager::once = nullptr;
 
 PluginsManager::PluginsManager(QThread *thread) {
     moveToThread(thread);
-    loadPlugins();
-    initPlugins();
-    startPlugins();
-    LOG(Info, ("已成功加载" + QString::number(plugins.size()).toLocal8Bit() + "个插件").data());
-    CmdIss::getObject()->registExitActiv(this);
-    connect(CmdIss::getObject(),&CmdIss::startExit,this,&PluginsManager::exit);
+    connect(CmdIss::getObject(),&CmdIss::appExit,this,&PluginsManager::exit_);
+    connect(this,&PluginsManager::loadPluginsS_,this,&PluginsManager::loadPlugins_,Qt::QueuedConnection);
+    connect(this,&PluginsManager::initPluginsS_,this,&PluginsManager::initPlugins_,Qt::QueuedConnection);
+    connect(this,&PluginsManager::startPluginsS_,this,&PluginsManager::startPlugins_,Qt::QueuedConnection);
+    connect(this,&PluginsManager::doneLoadPluginsS_,this,&PluginsManager::doneLoadPlugins_,Qt::QueuedConnection);
+    emit loadPluginsS_();
 }
 
 PluginsManager::~PluginsManager() = default;
 
-void PluginsManager::exit() {
+void PluginsManager::exit_() {
     if (!plugins.empty()) {
         LOG(Info, "开始卸载插件");
         typedef void(*FP)();
@@ -39,10 +39,9 @@ void PluginsManager::exit() {
         }
         LOG(Info, "所有插件卸载完成");
     }
-    CmdIss::getObject()->canExit(this);
 }
 
-void PluginsManager::loadPlugins() {
+void PluginsManager::loadPlugins_() {
     QDir generalDir;
     if (!generalDir.exists("plugins"))
         generalDir.mkpath("plugins");
@@ -96,9 +95,10 @@ void PluginsManager::loadPlugins() {
             }
         }
     }//遍历所有dll文件
+    emit initPluginsS_();
 }
 
-void PluginsManager::initPlugins() {
+void PluginsManager::initPlugins_() {
     if (!plugins.empty()) {
         LOG(Info, "开始初始化插件");
         typedef void(*FP)();
@@ -118,9 +118,10 @@ void PluginsManager::initPlugins() {
             }
         }
     }
+    emit startPluginsS_();
 }
 
-void PluginsManager::startPlugins() {
+void PluginsManager::startPlugins_() {
     if (!plugins.empty()) {
         LOG(Info, "开始启用插件");
         typedef void(*FP)();
@@ -140,6 +141,7 @@ void PluginsManager::startPlugins() {
             }
         }
     }
+    emit doneLoadPluginsS_();
 }
 
 void PluginsManager::deleteObject() {
@@ -151,4 +153,8 @@ PluginsManager *PluginsManager::getObject(QThread *thread) {
     if (once == nullptr && thread != nullptr)
         once = new PluginsManager(thread);
     return once;
+}
+
+void PluginsManager::doneLoadPlugins_() {
+    LOG(Info, ("已成功加载" + QString::number(plugins.size()).toLocal8Bit() + "个插件").data());
 }

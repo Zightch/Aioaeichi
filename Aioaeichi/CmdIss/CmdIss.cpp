@@ -1,13 +1,16 @@
 #include "CmdIss.h"
 #include "Logger/Logger.h"
 #include <QThread>
+#include <utility>
+#include <QMutexLocker>
 
 CmdIss *CmdIss::once = nullptr;
 
 void CmdIss::addCmd(const QByteArray &src) {
+    QMutexLocker ml(&mutex);
     if (!src.isEmpty()) {
         QByteArray cmd;
-        std::vector<QByteArray> args;
+        QList<QByteArray> args;
         bool isQuoting = false;
         for (qsizetype i = 0; i < src.size(); i++) {
             if (src[i] == ' ' && (!isQuoting)) {
@@ -24,18 +27,17 @@ void CmdIss::addCmd(const QByteArray &src) {
                     args.back().push_back(src[i]);
             }
         }
-        mutex.lock();
         cmdBuf.push_back({cmd, args});
-        mutex.unlock();
     }
 }
 
 CmdIss::CmdIss(QThread *thread) {
     moveToThread(thread);
-    connect(this, &CmdIss::startExitInAdvance, this, &CmdIss::startExit_, Qt::QueuedConnection);
-    connect(this, &CmdIss::appExitInAdvance, this, &CmdIss::appExit_, Qt::QueuedConnection);
-    connect(this, &CmdIss::timerStart, this, &CmdIss::timerStart_, Qt::QueuedConnection);
-    emit timerStart();
+    QMutexLocker ml(&mutex);
+    connect(this, &CmdIss::timerStartS_, this, &CmdIss::timerStart_, Qt::QueuedConnection);
+    connect(this, &CmdIss::startExitInAdvanceS_, this, &CmdIss::startExit_, Qt::QueuedConnection);
+    connect(this, &CmdIss::appExitInAdvanceS_, this, &CmdIss::appExit_, Qt::QueuedConnection);
+    emit timerStartS_();
 }
 
 void CmdIss::deleteObject() {
@@ -49,16 +51,12 @@ CmdIss *CmdIss::getObject(QThread *thread) {
     return once;
 }
 
-void CmdIss::cmdProc() {
+void CmdIss::cmdProc_() {
+    QMutexLocker ml(&mutex);
     if (!isReadyExit) {
-        mutex.lock();
-        auto isEmpty = cmdBuf.empty();
-        mutex.unlock();
-        while (!isEmpty) {
-            mutex.lock();
+        while (!cmdBuf.isEmpty()) {
             auto cmdTmp = cmdBuf.front();
             cmdBuf.pop_front();
-            mutex.unlock();
             isIss = true;
             for (auto i: cmdCallBack) {
                 isAccept = true;
@@ -71,27 +69,22 @@ void CmdIss::cmdProc() {
                 isReadyExit = true;
                 isProc = true;
                 isAccept = false;
-                emit startExitInAdvance();
+                connect(this, &CmdIss::startExit, this, &CmdIss::defaultCanExit_, Qt::QueuedConnection);
+                emit startExitInAdvanceS_();
             }
             if ((!isProc))
                 LOG(Info, "\"" + cmd + "\"未知的命令");
             isProc = false;
             isAccept = false;
-            mutex.lock();
-            isEmpty = cmdBuf.empty();
-            mutex.unlock();
         }
-    } else {
-        mutex.lock();
-        if (isCanExit)
-            emit appExitInAdvance();
-        mutex.unlock();
-    }
+    } else if (isCanExit)
+            emit appExitInAdvanceS_();
 }
 
 CmdIss::~CmdIss() = default;
 
 void CmdIss::addCmdCallBack(CmdProc* ccb) {
+    QMutexLocker ml(&mutex);
     if (isIss) {
         LOG(Warning, "警告: CmdIss正在分发命令, 此过程不允许添加新的Cmd处理器");
         return;
@@ -101,6 +94,7 @@ void CmdIss::addCmdCallBack(CmdProc* ccb) {
 }
 
 void CmdIss::rmCmdCallBack(CmdProc* ccb) {
+    QMutexLocker ml(&mutex);
     if (isIss) {
         LOG(Warning, "警告: CmdIss正在分发命令, 此过程不允许删除Cmd处理器");
         return;
@@ -108,43 +102,58 @@ void CmdIss::rmCmdCallBack(CmdProc* ccb) {
     if (ccb != nullptr) {
         auto i = std::find(cmdCallBack.begin(), cmdCallBack.end(), ccb);
         if (i != cmdCallBack.end())
-            cmdCallBack.erase(i);
+            cmdCallBack.removeOne(ccb);
     }
 }
 
-void CmdIss::canExit(QObject *obj) {
-    mutex.lock();
+void CmdIss::canExit(void *obj) {
+    QMutexLocker ml(&mutex);
     if (isReadyExit) {
-        exitActic[obj] = true;
+        if (obj != nullptr)
+            if (exitActic.contains(obj))
+                exitActic[obj] = true;
         isCanExit = true;
         for (auto i: exitActic)
             if (!i) isCanExit = false;
     }
-    mutex.unlock();
 }
 
 void CmdIss::startExit_() {
+    QMutexLocker ml(&mutex);
     emit startExit();
 }
 
 void CmdIss::appExit_() {
+    QMutexLocker ml(&mutex);
     delete timer;
     timer = nullptr;
     emit appExit();
 }
 
-void CmdIss::registExitActiv(QObject *obj) {
-    if (!exitActic.contains(obj))
-        exitActic.insert(obj, false);
+void CmdIss::registExitActiv(void *obj) {
+    QMutexLocker ml(&mutex);
+    if (obj != nullptr)
+        if (!exitActic.contains(obj))
+            exitActic[obj] = false;
 }
 
-void CmdIss::rmExitActiv(QObject *obj) {
-    if (exitActic.contains(obj))
-        exitActic.remove(obj);
+void CmdIss::rmExitActiv(void *obj) {
+    QMutexLocker ml(&mutex);
+    if (obj != nullptr)
+        if (exitActic.contains(obj))
+            exitActic.remove(obj);
+}
+
+void CmdIss::defaultCanExit_() {
+    QMutexLocker ml(&mutex);
+    canExit();
 }
 
 void CmdIss::timerStart_() {
+    QMutexLocker ml(&mutex);
     timer = new QTimer(this);
+    connect(timer,&QTimer::timeout,this,&CmdIss::cmdProc_);
     timer->start(100);
-    connect(timer, &QTimer::timeout, this, &CmdIss::cmdProc);
 }
+
+CmdIss::CmdProc::CmdProc(CmdIss::CmdCallBack ccb) : fn(std::move(ccb)) {}

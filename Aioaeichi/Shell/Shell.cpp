@@ -38,11 +38,11 @@ void Shell::addLog_(
 Shell::Shell(QObject*parent) : QObject(parent) {
     using namespace std::placeholders;
     Logger::setLogCall(std::bind(&Shell::addLog_, this, _1, _2, _3, _4, _5, _6, _7));
-    connect(this, &Shell::loop, this, &Shell::loop_, Qt::QueuedConnection);
-    connect(this, &Shell::endLoop, this, &Shell::endLoop_, Qt::QueuedConnection);
+    connect(this, &Shell::loopS_, this, &Shell::loop_, Qt::QueuedConnection);
+    connect(this, &Shell::endLoopS_, this, &Shell::endLoop_, Qt::QueuedConnection);
     std::cout << '>' << std::flush;
     historyCommand.emplace_back();
-    emit loop();
+    emit loopS_();
 }
 
 Shell::~Shell() = default;
@@ -59,7 +59,7 @@ void Shell::endLoop_() {
     currentInputLeft = "";
     currentInputRight = "";
     std::cout << '>' << std::flush;
-    emit loop();
+    emit loopS_();
 }
 
 void Shell::loop_() {
@@ -313,6 +313,6 @@ void Shell::loop_() {
             }
         }
     if ((tmp == '\r') || (tmp == '\n'))
-        emit endLoop();
-    else emit loop();
+        emit endLoopS_();
+    else emit loopS_();
 }

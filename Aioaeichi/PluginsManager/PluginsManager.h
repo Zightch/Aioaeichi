@@ -3,6 +3,7 @@
 
 class PluginsManager : public QObject {
 Q_OBJECT
+
 public:
 
     static PluginsManager *getObject(QThread * = nullptr);
@@ -10,17 +11,30 @@ public:
     static void deleteObject();
 
 private:
+signals:
+
+    void loadPluginsS_();
+
+    void initPluginsS_();
+
+    void startPluginsS_();
+
+    void doneLoadPluginsS_();
+
+private:
     explicit PluginsManager(QThread * = nullptr);
 
     ~PluginsManager() override;
 
-    void loadPlugins();
+    void loadPlugins_();
 
-    void initPlugins();
+    void initPlugins_();
 
-    void startPlugins();
+    void startPlugins_();
 
-    void exit();
+    void doneLoadPlugins_();
+
+    void exit_();
 
     class Plugin {
     public:

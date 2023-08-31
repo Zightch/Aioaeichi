@@ -11,9 +11,9 @@ namespace Logger {
             callBack = lc;
     }
 
-    QMutex sctv;
-    QMutex vllsis;
-    QMutex vls;
+    QRecursiveMutex sctv;
+    QRecursiveMutex vllsis;
+    QRecursiveMutex vls;
 
     unsigned long long currThread() {
         std::thread::id id = std::this_thread::get_id();

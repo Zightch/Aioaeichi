@@ -1,8 +1,8 @@
 #pragma once
 #include <functional>
 #include <QTimer>
-#include <QMutexLocker>
 #include <QMap>
+#include <QRecursiveMutex>
 
 #ifdef _WIN32
 #define AIOAEICHI __declspec(dllexport)
@@ -19,11 +19,11 @@ public:
 
     static void deleteObject();
 
-    using CmdCallBack = std::function<void(const QByteArray &, const std::vector<QByteArray> &, bool &, bool &)>;
+    using CmdCallBack = std::function<void(const QByteArray &, const QByteArrayList &, bool &, bool &)>;
 
     class AIOAEICHI CmdProc {
     public:
-        explicit CmdProc(CmdCallBack ccb) : fn(std::move(ccb)) {};
+        explicit CmdProc(CmdCallBack ccb);
 
         CmdProc(const CmdProc &) = delete;
 
@@ -41,11 +41,11 @@ public:
 
     void rmCmdCallBack(CmdProc *);
 
-    void canExit(QObject *);
+    void canExit(void * = nullptr);
 
-    void registExitActiv(QObject *);
+    void registExitActiv(void *);
 
-    void rmExitActiv(QObject *);
+    void rmExitActiv(void *);
 
 public:
 signals:
@@ -57,11 +57,11 @@ signals:
 private:
 signals:
 
-    void timerStart();
+    void timerStartS_();
 
-    void startExitInAdvance();
+    void startExitInAdvanceS_();
 
-    void appExitInAdvance();
+    void appExitInAdvanceS_();
 
 private:
     explicit CmdIss(QThread * = nullptr);
@@ -71,18 +71,20 @@ private:
     class Cmd {
     public:
         QByteArray cmd;
-        std::vector<QByteArray> args;
+        QList<QByteArray> args;
     };
 
     void timerStart_();
 
-    void cmdProc();
+    void cmdProc_();
 
     void startExit_();
 
     void appExit_();
 
-    std::vector<CmdProc *> cmdCallBack;
+    void defaultCanExit_();
+
+    QList<CmdProc *> cmdCallBack;
     bool isProc = false;
     bool isAccept = false;
     bool isIss = false;
@@ -90,7 +92,7 @@ private:
     bool isCanExit = false;
     QTimer *timer = nullptr;
     QList<Cmd> cmdBuf;
-    QMutex mutex;
-    QMap<QObject *, bool> exitActic;
+    QRecursiveMutex mutex;
+    QMap<void *, bool> exitActic;
     static CmdIss *once;
 };

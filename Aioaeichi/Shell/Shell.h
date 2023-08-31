@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QMutex>
+#include <QRecursiveMutex>
 #include <QObject>
 #include <QList>
 #include "Logger/Logger.h"
@@ -17,8 +17,8 @@ public:
 private:
 signals:
 
-    void loop();
-    void endLoop();
+    void loopS_();
+    void endLoopS_();
 
 private:
 
@@ -54,7 +54,7 @@ private:
     QByteArray currentInputLeft;
     QByteArray currentInputRight;
     QByteArray currentInputTmp;
-    std::vector<QByteArray> historyCommand;
+    QByteArrayList historyCommand;
 #ifdef _WIN32
     bool dirReady = false;
 #elif __linux__
@@ -62,8 +62,8 @@ private:
     bool terminalControlReady = false;
 #endif
     bool tmpIsSave = false;
-    size_t currentHistoryCommandIndex = 0;
-    QMutex addLogMutex;
+    qsizetype currentHistoryCommandIndex = 0;
+    QRecursiveMutex addLogMutex;
     QList<LogInfo> log;
     static Shell *once;
 };
