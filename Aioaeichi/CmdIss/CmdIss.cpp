@@ -99,11 +99,8 @@ void CmdIss::rmCmdCallBack(CmdProc* ccb) {
         LOG(Warning, "警告: CmdIss正在分发命令, 此过程不允许删除Cmd处理器");
         return;
     }
-    if (ccb != nullptr) {
-        auto i = std::find(cmdCallBack.begin(), cmdCallBack.end(), ccb);
-        if (i != cmdCallBack.end())
-            cmdCallBack.removeOne(ccb);
-    }
+    if (ccb != nullptr)
+        cmdCallBack.removeOne(ccb);
 }
 
 void CmdIss::canExit(void *obj) {
