@@ -44,7 +44,7 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
 `发布`中已构建好的产物使用的<b>`QT6.5.2`</b>的版本, 请务必注意
 
 1. 你需要修改[`CMakeLists.txt`](CMakeLists.txt)文件中的`第8行`和`第12行`  
-  以配置`CMAKE_PREFIX_PATH`变量, 确保能够找到你的QT SDK
+  以配置`CMAKE_PREFIX_PATH`变量, 确保能够找到你的QT SDK  
   当然, 将此变量写入`系统环境变量`也是不错的选择
 2. 利用cmake生成makefile或其他构建工具的`build`目录, 方式不限
 3. 构建项目, 复制依赖到你的`build`目录下, 其中依赖包括`Qt6Core.dll/so`, 方式不限
