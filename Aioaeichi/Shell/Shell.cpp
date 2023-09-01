@@ -49,7 +49,7 @@ Shell::~Shell() = default;
 
 void Shell::endLoop_() {
     if (CmdIss::getObject() != nullptr)
-        CmdIss::getObject()->addCmd(currentInput);
+        CmdIss::getObject()->addCmd_(currentInput);
     if (!currentInput.isEmpty()) {
         historyCommand.back() = currentInput;
         historyCommand.emplace_back();

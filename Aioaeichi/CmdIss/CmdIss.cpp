@@ -2,11 +2,12 @@
 #include "Logger/Logger.h"
 #include <QThread>
 #include <utility>
-#include <QMutexLocker>
+#include <random>
+#include <QDateTime>
 
 CmdIss *CmdIss::once = nullptr;
 
-void CmdIss::addCmd(const QByteArray &src) {
+void CmdIss::addCmd_(const QByteArray &src) {
     QMutexLocker ml(&mutex);
     if (!src.isEmpty()) {
         QByteArray cmd;
@@ -103,14 +104,14 @@ void CmdIss::rmCmdCallBack(CmdProc* ccb) {
         cmdCallBack.removeOne(ccb);
 }
 
-void CmdIss::canExit(void *obj) {
+void CmdIss::canExit(unsigned long long ID) {
     QMutexLocker ml(&mutex);
     if (isReadyExit) {
-        if (obj != nullptr)
-            if (exitActic.contains(obj))
-                exitActic[obj] = true;
+        if (ID != 0)
+            if (activ.contains(ID))
+                activ[ID] = true;
         isCanExit = true;
-        for (auto i: exitActic)
+        for (auto i: activ)
             if (!i) isCanExit = false;
     }
 }
@@ -127,18 +128,21 @@ void CmdIss::appExit_() {
     emit appExit();
 }
 
-void CmdIss::registExitActiv(void *obj) {
+unsigned long long CmdIss::registActiv() {
     QMutexLocker ml(&mutex);
-    if (obj != nullptr)
-        if (!exitActic.contains(obj))
-            exitActic[obj] = false;
+    unsigned long long tmp;
+    std::mt19937_64 gen(QDateTime::currentMSecsSinceEpoch());
+    std::uniform_int_distribution<unsigned long long> dis;
+    do { tmp = dis(gen); } while (activ.contains(tmp));
+    activ[tmp] = false;
+    return tmp;
 }
 
-void CmdIss::rmExitActiv(void *obj) {
+void CmdIss::rmActiv(unsigned long long ID) {
     QMutexLocker ml(&mutex);
-    if (obj != nullptr)
-        if (exitActic.contains(obj))
-            exitActic.remove(obj);
+    if (ID != 0)
+        if (activ.contains(ID))
+            activ.remove(ID);
 }
 
 void CmdIss::defaultCanExit_() {

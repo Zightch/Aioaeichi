@@ -35,17 +35,15 @@ public:
         friend class CmdIss;
     };
 
-    void addCmd(const QByteArray &);
-
     void addCmdCallBack(CmdProc *);
 
     void rmCmdCallBack(CmdProc *);
 
-    void canExit(void * = nullptr);
+    void canExit(unsigned long long = 0);
 
-    void registExitActiv(void *);
+    unsigned long long registActiv();
 
-    void rmExitActiv(void *);
+    void rmActiv(unsigned long long);
 
 public:
 signals:
@@ -84,6 +82,8 @@ private:
 
     void defaultCanExit_();
 
+    void addCmd_(const QByteArray &);
+
     QList<CmdProc *> cmdCallBack;
     bool isProc = false;
     bool isAccept = false;
@@ -93,6 +93,7 @@ private:
     QTimer *timer = nullptr;
     QList<Cmd> cmdBuf;
     QRecursiveMutex mutex;
-    QMap<void *, bool> exitActic;
+    QMap<unsigned long long, bool> activ;
     static CmdIss *once;
+    friend class Shell;
 };
