@@ -7,6 +7,12 @@
 
 CmdIss *CmdIss::once = nullptr;
 
+class CmdIss::Cmd {
+public:
+    QByteArray cmd;
+    QList<QByteArray> args;
+};
+
 void CmdIss::addCmd_(const QByteArray &src) {
     QMutexLocker ml(&mutex);
     if (!src.isEmpty()) {
@@ -106,14 +112,12 @@ void CmdIss::rmCmdCallBack(CmdProc* ccb) {
 
 void CmdIss::canExit(unsigned long long ID) {
     QMutexLocker ml(&mutex);
-    if (isReadyExit) {
-        if (ID != 0)
-            if (activ.contains(ID))
-                activ[ID] = true;
-        isCanExit = true;
-        for (auto i: activ)
-            if (!i) isCanExit = false;
-    }
+    if (ID != 0)
+        if (activ.contains(ID))
+            activ[ID] = true;
+    isCanExit = true;
+    for (auto i: activ)
+        if (!i) isCanExit = false;
 }
 
 void CmdIss::startExit_() {

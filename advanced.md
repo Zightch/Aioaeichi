@@ -13,6 +13,12 @@
 #include "Logger.h"
 #include "CmdIss.h" // 引入命令分发器头文件
 
+#ifdef _WIN32
+#define DEMO extern "C" __declspec(dllexport)
+#elif __linux__
+#define DEMO extern "C"
+#endif
+
 // 定义命令处理器, 参数分别为cmd, args, proc, accept
 CmdIss::CmdProc cmdProc([](const QByteArray &cmd, const QByteArrayList &args, bool &proc, bool &accept) {
     if (cmd == "demo1") { // 如果cmd == "demo1"
@@ -20,15 +26,12 @@ CmdIss::CmdProc cmdProc([](const QByteArray &cmd, const QByteArrayList &args, bo
     }
 });
 
-extern "C"
-{
-void init() {}
-void start() {
+DEMO void init() {}
+DEMO void start() {
     // 使用命令分发器的单例对象注册咱们刚刚写的命令处理器
     CmdIss::getObject()->addCmdCallBack(&cmdProc);
 }
-void unload() {}
-}
+DEMO void unload() {}
 ```
 构建后运行Aioaeichi, 你将能看到如下内容
 ```

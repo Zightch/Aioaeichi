@@ -111,13 +111,17 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
     ```C++
     #include "Logger.h"
 
-    extern "C" {
-    void init() {}
-    void start() {
+    #ifdef _WIN32
+    #define DEMO extern "C" __declspec(dllexport)
+    #elif __linux__
+    #define DEMO extern "C"
+    #endif
+    
+    DEMO void init() {}
+    DEMO void start() {
         LOG(Info, "Hello, Aioaeichi");
     }
-    void unload() {}
-    }
+    DEMO void unload() {}
     ```
 5.  小结, 如果你的操作没有问题, 你的插件项目目录应该如下所示
     ```

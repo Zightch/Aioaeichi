@@ -17,8 +17,6 @@ public:
 
     static CmdIss *getObject(QThread * = nullptr);
 
-    static void deleteObject();
-
     using CmdCallBack = std::function<void(const QByteArray &, const QByteArrayList &, bool &, bool &)>;
 
     class AIOAEICHI CmdProc {
@@ -62,15 +60,13 @@ signals:
     void appExitInAdvanceS_();
 
 private:
+    class Cmd;
+
+    static void deleteObject();
+
     explicit CmdIss(QThread * = nullptr);
 
     ~CmdIss() override;
-
-    class Cmd {
-    public:
-        QByteArray cmd;
-        QList<QByteArray> args;
-    };
 
     void timerStart_();
 
@@ -95,5 +91,8 @@ private:
     QRecursiveMutex mutex;
     QMap<unsigned long long, bool> activ;
     static CmdIss *once;
+
     friend class Shell;
+
+    friend int main(int, char **);
 };
