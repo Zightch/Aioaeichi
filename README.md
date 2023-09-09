@@ -1,4 +1,4 @@
-[mirrors](http://staticplant.top:19133/Zightch/Aioaeichi/)
+[mirrors](http://101.43.118.146:19133/Zightch/Aioaeichi/)
 
 # Aioaeichi
 `Aioaeichi`是一个用C++基于QT框架封装的跨平台的虚拟控制台
