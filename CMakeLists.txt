@@ -5,10 +5,10 @@ project(${projectName} LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (WIN32)
-        set(CMAKE_PREFIX_PATH "E:\\Qt\\6.5.2\\mingw_64\\lib\\cmake")
+        set(CMAKE_PREFIX_PATH "E:\\Qt\\6.6.0\\mingw_64\\lib\\cmake")
         set(libs)
 elseif(UNIX)
-        set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.2/gcc_64/lib/cmake")
+        set(CMAKE_PREFIX_PATH "/opt/Qt/6.6.0/gcc_64/lib/cmake")
         set(libs dl)
 endif ()
 
