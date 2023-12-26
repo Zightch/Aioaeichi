@@ -5,13 +5,13 @@
 #include <QRecursiveMutex>
 
 #ifdef _WIN32
-#define AIOAEICHI __declspec(dllimport)
+#define SCREW __declspec(dllimport)
 #elif __linux__
-#define AIOAEICHI
+#define SCREW
 #endif
 
-class AIOAEICHI CmdIss : public QObject {//命令下发器
-Q_OBJECT
+class SCREW CmdIss : public QObject {//命令下发器
+    Q_OBJECT
 
 public:
 
@@ -19,7 +19,7 @@ public:
 
     using CmdCallBack = std::function<void(const QByteArray &, const QByteArrayList &, bool &, bool &)>;
 
-    class AIOAEICHI CmdProc {
+    class SCREW CmdProc {
     public:
         explicit CmdProc(CmdCallBack ccb);
 
@@ -44,16 +44,16 @@ public:
     void rmActiv(unsigned long long);
 
 public:
-signals:
+    signals:
 
-    void startExit();
+            void startExit();
 
     void appExit();
 
 private:
-signals:
+    signals:
 
-    void timerStartS_();
+            void timerStartS_();
 
     void startExitInAdvanceS_();
 
@@ -91,4 +91,8 @@ private:
     QRecursiveMutex mutex;
     QMap<unsigned long long, bool> activ;
     static CmdIss *once;
+
+    friend class Shell;
+
+    friend int main(int, char **);
 };
