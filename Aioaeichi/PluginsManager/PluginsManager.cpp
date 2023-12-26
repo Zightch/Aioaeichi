@@ -1,7 +1,7 @@
 #include "PluginsManager.h"
-#include "Logger/Logger.h"
+#include "Screw/Logger.h"
 #include "DLLLoader/DLLLoader.h"
-#include "CmdIss/CmdIss.h"
+#include "Screw/CmdIss.h"
 #include <QDir>
 #include <QThread>
 

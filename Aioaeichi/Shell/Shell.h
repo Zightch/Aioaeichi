@@ -3,7 +3,7 @@
 #include <QRecursiveMutex>
 #include <QObject>
 #include <QList>
-#include "Logger/Logger.h"
+#include "Screw/Logger.h"
 
 class Shell : public QObject {
 Q_OBJECT
@@ -49,6 +49,11 @@ private:
 
     void loop_();
     void endLoop_();
+
+    void up_();
+    void down_();
+    void left_();
+    void right_();
 
     QByteArray currentInput;
     QByteArray currentInputLeft;

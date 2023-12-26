@@ -5,7 +5,7 @@
 #include <QRecursiveMutex>
 
 #ifdef _WIN32
-#define AIOAEICHI __declspec(dllexport)
+#define AIOAEICHI __declspec(dllimport)
 #elif __linux__
 #define AIOAEICHI
 #endif
