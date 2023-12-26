@@ -43,14 +43,19 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
 
 ## 构建Aioaeichi
 如果你是直接从`发布`中下载已经构建好的, 本步骤可以跳过  
-`发布`中的构建产物均为g++编译, 如果你使用的msvc, 那么该步骤将不能跳过, 你需要自行编译msvc的构建产物  
-`发布`中已构建好的产物使用的<b>`QT6.5.2`</b>的版本, 请务必注意
+>`发布`中的构建产物均为`QT6.6.0` `g++`编译  
+>如果你使用的`msvc`或者`其他版本QT`, 那么该步骤将不能跳过  
+>你需要自行编译`msvc`或者`其他版本QT`的构建产物
 
 1. 你需要修改[`CMakeLists.txt`](CMakeLists.txt)文件中的`第8行`和`第12行`  
   以配置`CMAKE_PREFIX_PATH`变量, 确保能够找到你的QT SDK  
   当然, 将此变量写入`系统环境变量`也是不错的选择
 2. 利用cmake生成makefile或其他构建工具的`build`目录, 方式不限
 3. 构建项目, 复制依赖到你的`build`目录下, 其中依赖包括`Qt6Core.dll/so`, 方式不限
+
+同时, `Aioaeichi`依赖于`Screw`  
+这也意味着你可能也要编译一下`Screw`  
+编译步骤与`Aioaeichi`相同, `Screw`源码在`Screw`分支中
 
 ## 创建插件项目
 1.  新建文件夹, 并新建`CMakeLists.txt`文件, 输入如下内容
@@ -72,11 +77,9 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
     
     if (WIN32)
-            set(CMAKE_PREFIX_PATH "D:\\Qt\\6.5.2\\mingw_64\\lib\\cmake")
-            set(libs Aioaeichi)
+        set(CMAKE_PREFIX_PATH "E:\\Qt\\6.6.0\\mingw_64\\lib\\cmake")
     elseif(UNIX)
-            set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.2/gcc_64/lib/cmake")
-            set(libs Aioaeichi)
+        set(CMAKE_PREFIX_PATH "/opt/Qt/6.6.0/gcc_64/lib/cmake")
     endif ()
     
     set(CMAKE_AUTOUIC ON)
@@ -92,26 +95,26 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
     include_directories(./${projectName})
     
     add_library(
-            ${projectName}
-            SHARED
-            main.cpp
+        ${projectName}
+        SHARED
+        main.cpp
     )
     
     target_link_libraries(
-            ${projectName}
-            Qt${QT_VERSION_MAJOR}::Core
-            ${libs}
-            )
+        ${projectName}
+        Qt${QT_VERSION_MAJOR}::Core
+        Screw
+    )
     ```
 
     </details>
 
-    ※ 此刻同样要注意`第15行`和`第18行`的`CMAKE_PREFIX_PATH`变量以及QT版本要与Aioaeichi对应
-2.  从`发布`中下载`include.zip`, 如果是windows用户也可以下载`libAioaeichi.dll.a`  
-3.  解压`include.zip`到include文件夹中, `libAioaeichi.dll.a`或者是Aioaeichi的可执行文件放到libs文件夹中
+    ※ 此刻同样要注意`第15行`和`第17行`的`CMAKE_PREFIX_PATH`变量以及QT版本要与Aioaeichi对应
+2.  从`发布`中下载`include & lib.zip`
+3.  解压`include & lib.zip`到项目文件夹根目录中, 其中`include`为包含文件, `libs`为Screw库文件
 4.  新建`main.cpp`, 输入如下内容
     ```C++
-    #include "Logger.h"
+    #include "Screw/Logger.h"
 
     #ifdef _WIN32
     #define DEMO extern "C" __declspec(dllexport)
@@ -128,10 +131,11 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
 5.  小结, 如果你的操作没有问题, 你的插件项目目录应该如下所示
     ```
     ├──include
-    │   ├──CmdIss.h
-    │   └──Logger.h
+    │  └──Screw
+    │     ├──CmdIss.h
+    │     └──Logger.h
     ├──libs
-    │   └──Aioaeichi静态导出库或可执行文件
+    │  └──libScrew.dll|so
     ├──main.cpp
     └──CmakeLists.txt
     ```
@@ -153,6 +157,9 @@ Aioaeichi是一个开源的软件，它遵循[`MIT许可证`](License)的条款�
     ```
     当你看到这些就意味着你大功告成了
 9.  在`>`之后输入`exit`即可退出程序
+
+完整项目这里查看[./demo/demo0](./demo/demo0)
+
 ## 最后
 都看到这里了, 不妨点个star支持一下  
 想要深入了解Aioaeichi的使用可以翻阅[这篇文档](advanced.md)

@@ -12,9 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (WIN32)
-        set(CMAKE_PREFIX_PATH "D:\\Qt\\6.5.2\\mingw_64\\lib\\cmake")
+        set(CMAKE_PREFIX_PATH "E:\\Qt\\6.6.0\\mingw_64\\lib\\cmake")
 elseif(UNIX)
-        set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.2/gcc_64/lib/cmake")
+        set(CMAKE_PREFIX_PATH "/opt/Qt/6.6.0/gcc_64/lib/cmake")
 endif ()
 
 set(CMAKE_AUTOUIC ON)
@@ -39,4 +39,4 @@ target_link_libraries(
         ${projectName}
         Qt${QT_VERSION_MAJOR}::Core
         Screw
-        )
+)
