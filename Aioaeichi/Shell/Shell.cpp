@@ -198,9 +198,9 @@ void Shell::loop_() {
                 std::string str;
                 std::getline(buf, str);
                 std::cout << str;
-                for (auto i = currentInput.size(); i < str.size(); i++)
+                for (auto i = str.size(); i < currentInput.size(); i++)
                     std::cout << " ";
-                for (auto i = currentInput.size(); i < str.size(); i++)
+                for (auto i = str.size(); i < currentInput.size(); i++)
                     std::cout << "\b";
                 std::cout << std::endl;
                 addLogMutex.lock();
@@ -228,9 +228,9 @@ void Shell::up_() {
         currentInput = historyCommand[--currentHistoryCommandIndex];
         currentInputLeft = currentInput;
         std::cout << currentInput.data();
-        for (auto i = lastSize; i < currentInput.size(); i++)
+        for (auto i = currentInput.size(); i < lastSize; i++)
             std::cout << " ";
-        for (auto i = lastSize; i < currentInput.size(); i++)
+        for (auto i = currentInput.size(); i < lastSize; i++)
             std::cout << "\b";
     }
 }
@@ -255,9 +255,9 @@ void Shell::down_() {
         currentInputLeft = currentInput;
         std::cout << currentInput.data();
     }
-    for (auto i = lastSize; i < currentInput.size(); i++)
+    for (auto i = currentInput.size(); i < lastSize; i++)
         std::cout << " ";
-    for (auto i = lastSize; i < currentInput.size(); i++)
+    for (auto i = currentInput.size(); i < lastSize; i++)
         std::cout << "\b";
 }
 
