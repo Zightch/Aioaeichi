@@ -88,7 +88,7 @@ void Shell::loop_() {
                 dirReady = false;
                 if (tmp == 72) up_();
                 else if (tmp == 80) down_();
-                else if (tmp == 75) left();
+                else if (tmp == 75) left_();
                 else if (tmp == 77) right_();
             } else if (tmp == 224) {
                 dirReady = true;

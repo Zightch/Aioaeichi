@@ -1,9 +1,9 @@
 #pragma once
 
 #ifdef _WIN32
-#define AIOAEICHI __declspec(dllimport)
+#define SCREW __declspec(dllimport)
 #elif __linux__
-#define AIOAEICHI
+#define SCREW
 #endif
 
 #include<QByteArray>
@@ -26,16 +26,16 @@ namespace Logger {
             const QByteArray &//内容
     )> LogCallBack;
 
-    void setLogCall(const LogCallBack &callBack);
+    SCREW void setLogCall(const LogCallBack &callBack);
 
-    AIOAEICHI void logger(
+    SCREW void logger(
             LogRank logRank,
             const QByteArray &file,
             unsigned long long line,
             const QByteArray &msg
     );
 
-    AIOAEICHI void logger(const QByteArray &msg);
+    SCREW void logger(const QByteArray &msg);
 }
 
 #define LOG(logRank, msg) Logger::logger(Logger::LogRank::logRank, __FILE__, __LINE__, msg)

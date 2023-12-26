@@ -7,9 +7,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if (WIN32)
         set(CMAKE_PREFIX_PATH "E:\\Qt\\6.6.0\\mingw_64\\lib\\cmake")
         set(libs Screw)
+        set(platform)
 elseif(UNIX)
         set(CMAKE_PREFIX_PATH "/opt/Qt/6.6.0/gcc_64/lib/cmake")
         set(libs Screw dl)
+        set(platform Aioaeichi/tools/conio.cpp)
 endif ()
 
 set(CMAKE_AUTOUIC ON)
@@ -33,7 +35,7 @@ add_executable(
         Aioaeichi/Shell/Shell.cpp
         Aioaeichi/PluginsManager/PluginsManager.cpp
         Aioaeichi/DLLLoader/DLLLoader.cpp
-        Aioaeichi/tools/conio.cpp
+        ${platform}
 )
 
 target_link_libraries(
