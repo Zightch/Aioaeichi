@@ -223,7 +223,7 @@ void Shell::up_() {
         currentInputTmp = currentInput;
     }
     if ((historyCommand.size() > 1) && currentHistoryCommandIndex > 0) {
-        std::cout << "\r";
+        std::cout << "\r>";
         auto lastSize = currentInput.size();
         currentInput = historyCommand[--currentHistoryCommandIndex];
         currentInputLeft = currentInput;
@@ -241,7 +241,7 @@ void Shell::down_() {
         tmpIsSave = true;
         currentInputTmp = currentInput;
     }
-    std::cout << "\r";
+    std::cout << "\r>";
     auto lastSize = currentInput.size();
     if (currentHistoryCommandIndex < historyCommand.size() - 2) {
         currentInput = historyCommand[++currentHistoryCommandIndex];
