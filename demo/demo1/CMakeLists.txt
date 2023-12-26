@@ -13,10 +13,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (WIN32)
         set(CMAKE_PREFIX_PATH "D:\\Qt\\6.5.2\\mingw_64\\lib\\cmake")
-        set(libs Aioaeichi)
 elseif(UNIX)
         set(CMAKE_PREFIX_PATH "/opt/Qt/6.5.2/gcc_64/lib/cmake")
-        set(libs Aioaeichi)
 endif ()
 
 set(CMAKE_AUTOUIC ON)
@@ -40,5 +38,5 @@ add_library(
 target_link_libraries(
         ${projectName}
         Qt${QT_VERSION_MAJOR}::Core
-        ${libs}
+        Screw
         )

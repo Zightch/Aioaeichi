@@ -7,7 +7,6 @@
 #endif
 
 #include<QByteArray>
-#include<functional>
 
 namespace Logger {
     enum LogRank {
@@ -15,16 +14,6 @@ namespace Logger {
         Warning,
         Error,
     };
-
-    typedef std::function<void(
-            bool,//是否有时间等信息
-            const QByteArray &,//时间
-            LogRank,//日志等级
-            unsigned long long,//当前线程
-            const QByteArray &,//所在文件
-            unsigned long long,//行号
-    const QByteArray &//内容
-    )> LogCallBack;
 
     SCREW void logger(
             LogRank logRank,

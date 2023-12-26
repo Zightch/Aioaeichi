@@ -91,8 +91,4 @@ private:
     QRecursiveMutex mutex;
     QMap<unsigned long long, bool> activ;
     static CmdIss *once;
-
-    friend class Shell;
-
-    friend int main(int, char **);
 };
