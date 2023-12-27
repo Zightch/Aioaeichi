@@ -84,14 +84,14 @@ void Shell::loop_() {
                     std::cout << '\b';
             }
 #ifdef  _WIN32
-            } else if (dirReady) {
-                dirReady = false;
-                if (tmp == 72) up_();
-                else if (tmp == 80) down_();
-                else if (tmp == 75) left_();
-                else if (tmp == 77) right_();
-            } else if (tmp == 224) {
-                dirReady = true;
+        } else if (dirReady) {
+            dirReady = false;
+            if (tmp == 72) up_();
+            else if (tmp == 80) down_();
+            else if (tmp == 75) left_();
+            else if (tmp == 77) right_();
+        } else if (tmp == 224) {
+            dirReady = true;
 #elif __linux__
         } else if (terminalControlReady) {
             terminalControlReady = false;
@@ -148,7 +148,7 @@ void Shell::loop_() {
                 LogInfo li = log.front();
                 log.pop_front();
                 addLogMutex.unlock();
-                std::stringstream buf;
+                std::stringstream coutBuf;
                 if (li.eInfo) {
                     QByteArray rank;
                     switch (li.rank) {
@@ -172,14 +172,14 @@ void Shell::loop_() {
                         for (i++; i != li.file.end(); i++)
                             file.push_back(*i);
                     }
-                    buf << li.time.data();
-                    buf << rank.data();
-                    buf << '[' << (void *) li.thread << ']';
-                    buf << '[' << file.data() << ':';
-                    buf << li.line << ']' << ' ';
+                    coutBuf << li.time.data();
+                    coutBuf << rank.data();
+                    coutBuf << '[' << (void *) li.thread << ']';
+                    coutBuf << '[' << file.data() << ':';
+                    coutBuf << li.line << ']' << ' ';
                 }
 #ifdef _WIN32
-                auto utf8ToGBK = [&](const QByteArray& utf8_str) {
+                auto utf8ToGBK = [&](const QByteArray &utf8_str) {
                     int len = MultiByteToWideChar(CP_UTF8, 0, utf8_str.data(), -1, nullptr, 0);
                     auto wstr = new wchar_t[len + 1];
                     MultiByteToWideChar(CP_UTF8, 0, utf8_str.data(), -1, wstr, len);
@@ -191,16 +191,20 @@ void Shell::loop_() {
                     delete[] str;
                     return result;
                 };
-                buf << utf8ToGBK(li.data).data();
+                coutBuf << utf8ToGBK(li.data).data();
 #elif __linux__
-                buf << li.data.data();
+                coutBuf << li.data.data();
 #endif
-                std::string str;
-                std::getline(buf, str);
-                std::cout << str;
-                for (auto i = str.size(); i < currentInput.size(); i++)
+                std::string coutStr;
+                while (!coutBuf.eof()) {
+                    auto tmpItem = coutBuf.get();
+                    if (0 > tmpItem || tmpItem > 255)continue;
+                    coutStr += (char) tmpItem;
+                }
+                std::cout << coutStr;
+                for (auto i = coutStr.size(); i < currentInput.size(); i++)
                     std::cout << " ";
-                for (auto i = str.size(); i < currentInput.size(); i++)
+                for (auto i = coutStr.size(); i < currentInput.size(); i++)
                     std::cout << "\b";
                 std::cout << std::endl;
                 addLogMutex.lock();
