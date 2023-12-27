@@ -202,9 +202,9 @@ void Shell::loop_() {
                     coutStr += (char) tmpItem;
                 }
                 std::cout << coutStr;
-                for (auto i = coutStr.size(); i < currentInput.size(); i++)
+                for (auto i = coutStr.size(); i <= currentInput.size(); i++)
                     std::cout << " ";
-                for (auto i = coutStr.size(); i < currentInput.size(); i++)
+                for (auto i = coutStr.size(); i <= currentInput.size(); i++)
                     std::cout << "\b";
                 std::cout << std::endl;
                 addLogMutex.lock();
