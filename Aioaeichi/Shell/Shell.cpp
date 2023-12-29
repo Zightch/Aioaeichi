@@ -195,17 +195,22 @@ void Shell::loop_() {
 #elif __linux__
                 coutBuf << li.data.data();
 #endif
-                std::string coutStr;
+                bool first = false;
                 while (!coutBuf.eof()) {
-                    auto tmpItem = coutBuf.get();
-                    if (0 > tmpItem || tmpItem > 255)continue;
-                    coutStr += (char) tmpItem;
+                    std::string tmpItem;
+                    std::getline(coutBuf, tmpItem);
+                    while (!tmpItem.empty() && std::isspace(tmpItem.back()))
+                        tmpItem.pop_back();
+                    if (first)std::cout << '\n';
+                    std::cout << tmpItem;
+                    if (!first) {
+                        for (auto i = tmpItem.size(); i <= currentInput.size(); i++)
+                            std::cout << " ";
+                        for (auto i = tmpItem.size(); i <= currentInput.size(); i++)
+                            std::cout << "\b";
+                        first = true;
+                    }
                 }
-                std::cout << coutStr;
-                for (auto i = coutStr.size(); i <= currentInput.size(); i++)
-                    std::cout << " ";
-                for (auto i = coutStr.size(); i <= currentInput.size(); i++)
-                    std::cout << "\b";
                 std::cout << std::endl;
                 addLogMutex.lock();
                 empty = log.empty();
