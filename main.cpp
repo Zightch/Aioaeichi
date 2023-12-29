@@ -1,7 +1,7 @@
 #include<QCoreApplication>
 #include"Screw/CmdIss.h"
 #include"Shell/Shell.h"
-#include"Aioaeichi/PluginsManager/PluginsManager.h"
+#include"PluginsManager/PluginsManager.h"
 #include<iostream>
 #include<QThread>
 
