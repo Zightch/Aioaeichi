@@ -4,14 +4,6 @@ project(${projectName} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if (WIN32)
-    set(CMAKE_PREFIX_PATH "E:\\Qt\\6.6.0\\mingw_64\\lib\\cmake")
-elseif(UNIX)
-    set(CMAKE_PREFIX_PATH "/opt/Qt/6.6.0/gcc_64/lib/cmake")
-else()
-    message(FATAL_ERROR "不支持的操作系统类型")
-endif ()
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
