@@ -4,11 +4,8 @@ project(${projectName} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if (WIN32)
-        set(libs Screw)
-elseif(UNIX)
-        set(libs Screw dl)
-        set(platformSrc Aioaeichi/tools/conio.cpp)
+if(UNIX)
+    set(platformSrc Aioaeichi/tools/conio.cpp)
 endif ()
 
 set(CMAKE_AUTOUIC ON)
@@ -31,12 +28,11 @@ add_executable(
         main.cpp
         Aioaeichi/Shell/Shell.cpp
         Aioaeichi/PluginsManager/PluginsManager.cpp
-        Aioaeichi/DLLLoader/DLLLoader.cpp
         ${platformSrc}
 )
 
 target_link_libraries(
         ${projectName}
         Qt${QT_VERSION_MAJOR}::Core
-        ${libs}
+        Screw
         )

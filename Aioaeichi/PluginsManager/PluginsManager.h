@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include <QLibrary>
 
 class PluginsManager : public QObject {
 Q_OBJECT
@@ -36,13 +37,17 @@ private:
 
     void exit_();
 
+    void freeLibs_();
+
     class Plugin {
     public:
-        void *handle = nullptr;
-        QList<void *> libs;
-        QByteArray name;
+        QLibrary *plugin = nullptr;
+        QList<QLibrary *> libs;
+        QString name;
     };
 
     QList<Plugin> plugins;
     static PluginsManager *once;
+
+    friend int main(int, char **);
 };
