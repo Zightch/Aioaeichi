@@ -18,10 +18,9 @@ int main(int argc, char *argv[]) {
     thread.start();
     int ret = QCoreApplication::exec();
     thread.wait();
+    PluginsManager::deleteObject();
     CmdIss::deleteObject();
     Shell::deleteObject();
-    PluginsManager::getObject()->freeLibs_();
-    PluginsManager::deleteObject();
     std::cout << std::endl;
     return ret;
 }

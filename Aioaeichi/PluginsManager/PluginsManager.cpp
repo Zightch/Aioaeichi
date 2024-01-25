@@ -31,6 +31,7 @@ void PluginsManager::exit_() {
             } else
                 LOG(Error, ("无法正常卸载" + i.name).toUtf8());
         }
+        freeLibs_();
         LOG(Info, "所有插件卸载完成");
     }
 }

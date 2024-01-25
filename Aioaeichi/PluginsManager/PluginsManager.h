@@ -48,6 +48,4 @@ private:
 
     QList<Plugin> plugins;
     static PluginsManager *once;
-
-    friend int main(int, char **);
 };
